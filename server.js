@@ -28,9 +28,12 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'replace-this-in-production';
 const DB_PATH = path.join(__dirname, 'data', 'db.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+const APP_ORIGIN = process.env.APP_ORIGIN || '*';
 
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'sales@agrivedaexports.com';
 const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || '919999999999';
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const rateLimitStore = new Map();
 
 function base64UrlEncode(input) {
   return Buffer.from(input).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
@@ -98,6 +101,7 @@ function verifyPassword(password, stored) {
 }
 
 function ensureDb() {
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   if (fs.existsSync(DB_PATH)) return;
 
   const seedData = {
@@ -183,14 +187,91 @@ function writeDb(data) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
+function getSecurityHeaders() {
+  return {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+    'Cross-Origin-Resource-Policy': 'cross-origin'
+  };
+}
+
+function getCorsOrigin(req) {
+  if (APP_ORIGIN === '*') return '*';
+  const requestOrigin = req.headers.origin || '';
+  return requestOrigin === APP_ORIGIN ? APP_ORIGIN : APP_ORIGIN;
+}
+
 function sendJson(res, status, payload) {
   res.writeHead(status, {
     'Content-Type': 'application/json',
+    ...getSecurityHeaders(),
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS'
   });
   res.end(JSON.stringify(payload));
+}
+
+function sendApiJson(req, res, status, payload) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    ...getSecurityHeaders(),
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS'
+  });
+  res.end(JSON.stringify(payload));
+}
+
+function normalizeString(value, maxLength = 255) {
+  const cleaned = String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, maxLength);
+  return cleaned;
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isStrongPassword(password) {
+  return (
+    password.length >= 8 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+}
+
+function getRateKey(req, route) {
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = (Array.isArray(forwarded) ? forwarded[0] : String(forwarded || req.socket.remoteAddress || 'unknown'))
+    .split(',')[0]
+    .trim();
+  return `${route}:${ip}`;
+}
+
+function checkRateLimit(req, route, limit) {
+  const now = Date.now();
+  const key = getRateKey(req, route);
+  const current = rateLimitStore.get(key);
+
+  if (!current || now > current.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  if (current.count >= limit) {
+    return true;
+  }
+
+  current.count += 1;
+  rateLimitStore.set(key, current);
+  return false;
 }
 
 function parseBody(req) {
@@ -227,7 +308,7 @@ function getAuthUser(req) {
 function requireAuth(req, res) {
   const user = getAuthUser(req);
   if (!user) {
-    sendJson(res, 401, { error: 'Unauthorized' });
+    sendApiJson(req, res, 401, { error: 'Unauthorized' });
     return null;
   }
   return user;
@@ -237,7 +318,7 @@ function requireAdmin(req, res) {
   const user = requireAuth(req, res);
   if (!user) return null;
   if (user.role !== 'admin') {
-    sendJson(res, 403, { error: 'Admin access required' });
+    sendApiJson(req, res, 403, { error: 'Admin access required' });
     return null;
   }
   return user;
@@ -260,7 +341,7 @@ function serveStatic(req, res, pathname) {
             sendJson(res, 404, { error: 'Not found' });
             return;
           }
-          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.writeHead(200, { 'Content-Type': 'text/html', ...getSecurityHeaders() });
           res.end(indexData);
         });
         return;
@@ -282,7 +363,7 @@ function serveStatic(req, res, pathname) {
       '.ico': 'image/x-icon'
     };
 
-    res.writeHead(200, { 'Content-Type': contentTypeMap[ext] || 'application/octet-stream' });
+    res.writeHead(200, { 'Content-Type': contentTypeMap[ext] || 'application/octet-stream', ...getSecurityHeaders() });
     res.end(data);
   });
 }
@@ -290,7 +371,8 @@ function serveStatic(req, res, pathname) {
 async function handleApi(req, res, pathname) {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      ...getSecurityHeaders(),
+      'Access-Control-Allow-Origin': getCorsOrigin(req),
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS'
     });
@@ -299,31 +381,48 @@ async function handleApi(req, res, pathname) {
   }
 
   if (req.method === 'GET' && pathname === '/api/health') {
-    sendJson(res, 200, { ok: true, message: 'Agriveda Export Limited API is running' });
+    sendApiJson(req, res, 200, { ok: true, message: 'Agriveda Export Limited API is running' });
     return;
   }
 
   if (req.method === 'GET' && pathname === '/api/public-config') {
-    sendJson(res, 200, { contactEmail: CONTACT_EMAIL, whatsappNumber: WHATSAPP_NUMBER });
+    sendApiJson(req, res, 200, { contactEmail: CONTACT_EMAIL, whatsappNumber: WHATSAPP_NUMBER });
     return;
   }
 
   if (req.method === 'POST' && pathname === '/api/auth/register') {
+    if (checkRateLimit(req, 'register', 20)) {
+      sendApiJson(req, res, 429, { error: 'Too many registration attempts. Please try again later.' });
+      return;
+    }
+
     try {
       const body = await parseBody(req);
-      const name = String(body.name || '').trim();
-      const email = String(body.email || '').trim().toLowerCase();
+      const name = normalizeString(body.name, 80);
+      const email = normalizeString(body.email, 120).toLowerCase();
       const password = String(body.password || '').trim();
 
       if (!name || !email || !password) {
-        sendJson(res, 400, { error: 'Name, email and password are required' });
+        sendApiJson(req, res, 400, { error: 'Name, email and password are required' });
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        sendApiJson(req, res, 400, { error: 'Please enter a valid email address' });
+        return;
+      }
+
+      if (!isStrongPassword(password)) {
+        sendApiJson(req, res, 400, {
+          error: 'Password must be at least 8 chars and include uppercase, lowercase, number and symbol'
+        });
         return;
       }
 
       const db = readDb();
       const existing = db.users.find((u) => u.email === email);
       if (existing) {
-        sendJson(res, 409, { error: 'Email already registered' });
+        sendApiJson(req, res, 409, { error: 'Email already registered' });
         return;
       }
 
@@ -339,28 +438,38 @@ async function handleApi(req, res, pathname) {
       db.users.push(user);
       writeDb(db);
 
-      sendJson(res, 201, { message: 'Registration successful. Please login.' });
+      sendApiJson(req, res, 201, { message: 'Registration successful. Please login.' });
     } catch (error) {
-      sendJson(res, 400, { error: error.message || 'Invalid request' });
+      sendApiJson(req, res, 400, { error: error.message || 'Invalid request' });
     }
     return;
   }
 
   if (req.method === 'POST' && pathname === '/api/auth/login') {
+    if (checkRateLimit(req, 'login', 30)) {
+      sendApiJson(req, res, 429, { error: 'Too many login attempts. Please try again later.' });
+      return;
+    }
+
     try {
       const body = await parseBody(req);
-      const email = String(body.email || '').trim().toLowerCase();
+      const email = normalizeString(body.email, 120).toLowerCase();
       const password = String(body.password || '').trim();
+
+      if (!isValidEmail(email)) {
+        sendApiJson(req, res, 400, { error: 'Please enter a valid email address' });
+        return;
+      }
 
       const db = readDb();
       const user = db.users.find((u) => u.email === email);
       if (!user || !verifyPassword(password, user.passwordHash)) {
-        sendJson(res, 401, { error: 'Invalid email or password' });
+        sendApiJson(req, res, 401, { error: 'Invalid email or password' });
         return;
       }
 
       const token = signJwt({ sub: user.id, role: user.role, email: user.email });
-      sendJson(res, 200, {
+      sendApiJson(req, res, 200, {
         token,
         user: {
           id: user.id,
@@ -370,7 +479,7 @@ async function handleApi(req, res, pathname) {
         }
       });
     } catch (error) {
-      sendJson(res, 400, { error: error.message || 'Invalid request' });
+      sendApiJson(req, res, 400, { error: error.message || 'Invalid request' });
     }
     return;
   }
@@ -379,7 +488,7 @@ async function handleApi(req, res, pathname) {
     const user = requireAuth(req, res);
     if (!user) return;
 
-    sendJson(res, 200, {
+    sendApiJson(req, res, 200, {
       id: user.id,
       name: user.name,
       email: user.email,
@@ -393,7 +502,7 @@ async function handleApi(req, res, pathname) {
     const user = getAuthUser(req);
 
     if (user) {
-      sendJson(res, 200, db.products);
+      sendApiJson(req, res, 200, db.products);
       return;
     }
 
@@ -404,7 +513,7 @@ async function handleApi(req, res, pathname) {
       shortDescription: p.shortDescription,
       image: p.image
     }));
-    sendJson(res, 200, publicProducts);
+    sendApiJson(req, res, 200, publicProducts);
     return;
   }
 
@@ -416,11 +525,11 @@ async function handleApi(req, res, pathname) {
     const db = readDb();
     const product = db.products.find((p) => p.id === productId);
     if (!product) {
-      sendJson(res, 404, { error: 'Product not found' });
+      sendApiJson(req, res, 404, { error: 'Product not found' });
       return;
     }
 
-    sendJson(res, 200, product);
+    sendApiJson(req, res, 200, product);
     return;
   }
 
@@ -435,44 +544,54 @@ async function handleApi(req, res, pathname) {
       const db = readDb();
       const index = db.products.findIndex((p) => p.id === productId);
       if (index === -1) {
-        sendJson(res, 404, { error: 'Product not found' });
+        sendApiJson(req, res, 404, { error: 'Product not found' });
         return;
       }
 
       const current = db.products[index];
       const updated = {
         ...current,
-        name: String(body.name || current.name),
-        shortDescription: String(body.shortDescription || current.shortDescription),
-        description: String(body.description || current.description),
-        origin: String(body.origin || current.origin),
-        grade: String(body.grade || current.grade),
-        minOrder: String(body.minOrder || current.minOrder),
-        image: String(body.image || current.image),
+        name: normalizeString(body.name || current.name, 80),
+        shortDescription: normalizeString(body.shortDescription || current.shortDescription, 240),
+        description: normalizeString(body.description || current.description, 2000),
+        origin: normalizeString(body.origin || current.origin, 120),
+        grade: normalizeString(body.grade || current.grade, 120),
+        minOrder: normalizeString(body.minOrder || current.minOrder, 60),
+        image: normalizeString(body.image || current.image, 400),
         updatedAt: new Date().toISOString()
       };
 
       db.products[index] = updated;
       writeDb(db);
 
-      sendJson(res, 200, { message: 'Product updated successfully', product: updated });
+      sendApiJson(req, res, 200, { message: 'Product updated successfully', product: updated });
     } catch (error) {
-      sendJson(res, 400, { error: error.message || 'Invalid request' });
+      sendApiJson(req, res, 400, { error: error.message || 'Invalid request' });
     }
     return;
   }
 
   if (req.method === 'POST' && pathname === '/api/enquiries') {
+    if (checkRateLimit(req, 'enquiry', 40)) {
+      sendApiJson(req, res, 429, { error: 'Too many enquiries submitted. Please try again later.' });
+      return;
+    }
+
     try {
       const body = await parseBody(req);
-      const name = String(body.name || '').trim();
-      const email = String(body.email || '').trim();
-      const phone = String(body.phone || '').trim();
-      const product = String(body.product || '').trim();
-      const message = String(body.message || '').trim();
+      const name = normalizeString(body.name, 80);
+      const email = normalizeString(body.email, 120);
+      const phone = normalizeString(body.phone, 40);
+      const product = normalizeString(body.product, 80);
+      const message = normalizeString(body.message, 1000);
 
       if (!name || !email || !product) {
-        sendJson(res, 400, { error: 'Name, email and product are required' });
+        sendApiJson(req, res, 400, { error: 'Name, email and product are required' });
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        sendApiJson(req, res, 400, { error: 'Please enter a valid email address' });
         return;
       }
 
@@ -497,14 +616,14 @@ async function handleApi(req, res, pathname) {
         `Hello Agriveda Export Limited, I want to enquire about ${product}. Name: ${name}, Email: ${email}, Phone: ${phone}, Message: ${message}`
       );
 
-      sendJson(res, 201, {
+      sendApiJson(req, res, 201, {
         message: 'Enquiry received successfully',
         enquiry,
         emailLink: `mailto:${CONTACT_EMAIL}?subject=Product%20Enquiry%20-%20${encodeURIComponent(product)}&body=${emailBody}`,
         whatsappLink: `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`
       });
     } catch (error) {
-      sendJson(res, 400, { error: error.message || 'Invalid request' });
+      sendApiJson(req, res, 400, { error: error.message || 'Invalid request' });
     }
     return;
   }
@@ -514,11 +633,11 @@ async function handleApi(req, res, pathname) {
     if (!admin) return;
 
     const db = readDb();
-    sendJson(res, 200, db.enquiries);
+    sendApiJson(req, res, 200, db.enquiries);
     return;
   }
 
-  sendJson(res, 404, { error: 'API endpoint not found' });
+  sendApiJson(req, res, 404, { error: 'API endpoint not found' });
 }
 
 ensureDb();
@@ -539,4 +658,10 @@ server.listen(PORT, () => {
   console.log(`Agriveda Export Limited running at http://localhost:${PORT}`);
   console.log('Default admin: admin@agrivedaexports.com / Admin@123');
   console.log('Default customer: customer@agrivedaexports.com / Customer@123');
+  if (JWT_SECRET === 'replace-this-in-production') {
+    console.warn('WARNING: Set a strong JWT_SECRET before production use.');
+  }
+  if (APP_ORIGIN === '*') {
+    console.warn('WARNING: Set APP_ORIGIN to your frontend domain for stricter CORS in production.');
+  }
 });

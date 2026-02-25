@@ -13,6 +13,8 @@ services:
         value: 20
       - key: JWT_SECRET
         generateValue: true
+      - key: APP_ORIGIN
+        value: https://agriveda-export-limited.onrender.com
       - key: CONTACT_EMAIL
         value: sales@agrivedaexports.com
       - key: WHATSAPP_NUMBER

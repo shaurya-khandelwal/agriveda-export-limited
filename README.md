@@ -79,7 +79,10 @@ git push -u origin main
 
 ## Production Notes
 - Set a strong `JWT_SECRET` in production.
+- Set `APP_ORIGIN` to your exact public frontend URL (for example `https://agriveda-export-limited.onrender.com`).
 - Use real business `CONTACT_EMAIL` and `WHATSAPP_NUMBER`.
 - Enable HTTPS on hosting platform.
-- Consider migrating from JSON storage to PostgreSQL/MySQL when traffic grows.
-- Current JSON file storage (`data/db.json`) is not ideal for long-term production persistence on free hosting plans.
+- Update default seeded accounts immediately:
+  - `admin@agrivedaexports.com / Admin@123`
+  - `customer@agrivedaexports.com / Customer@123`
+- Current JSON storage (`data/db.json`) is acceptable for demo/MVP only; for true production reliability use a managed database (PostgreSQL/MySQL) because free web services can lose local file data during redeploy/restart.

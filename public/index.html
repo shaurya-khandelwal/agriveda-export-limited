@@ -113,7 +113,8 @@
       <form id="registerForm" class="auth-form hidden">
         <input type="text" name="name" placeholder="Full Name" required />
         <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
+        <input type="password" name="password" placeholder="Password" minlength="8" required />
+        <p class="muted small">Use at least 8 characters with uppercase, lowercase, number and symbol.</p>
         <button class="btn" type="submit">Create Account</button>
       </form>
 
