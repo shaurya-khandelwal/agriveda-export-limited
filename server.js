@@ -31,7 +31,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const APP_ORIGIN = process.env.APP_ORIGIN || '*';
 
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'sales@agrivedaexports.com';
-const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || '919999999999';
+const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || '918209796106';
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const rateLimitStore = new Map();
 

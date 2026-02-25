@@ -18,4 +18,4 @@ services:
       - key: CONTACT_EMAIL
         value: sales@agrivedaexports.com
       - key: WHATSAPP_NUMBER
-        value: "918209796107"
+        value: "918209796106"
