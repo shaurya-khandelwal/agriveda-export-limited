@@ -45,14 +45,18 @@ Change these after first login for production usage.
 
 ## Free Hosting (Recommended)
 
-### Option A: Render (Web Service)
+### Option A: Render (Web Service, Free Plan)
 1. Push this code to GitHub.
-2. On [Render](https://render.com), create **New + > Web Service**.
-3. Connect GitHub repo and select this project.
-4. Build command: leave empty.
-5. Start command: `npm start`
-6. Add environment variables from `.env.example`.
-7. Deploy.
+2. Open [Render Dashboard](https://dashboard.render.com) and click **New + > Blueprint**.
+3. Select this repo. Render will detect `render.yaml` automatically.
+4. Click **Apply** to create and deploy the service.
+5. After deploy, open the generated `onrender.com` URL.
+
+`render.yaml` already includes:
+- Free plan
+- Start command (`npm start`)
+- Health check (`/api/health`)
+- Environment variables template
 
 ### Option B: Railway
 1. Push to GitHub.
@@ -78,3 +82,4 @@ git push -u origin main
 - Use real business `CONTACT_EMAIL` and `WHATSAPP_NUMBER`.
 - Enable HTTPS on hosting platform.
 - Consider migrating from JSON storage to PostgreSQL/MySQL when traffic grows.
+- Current JSON file storage (`data/db.json`) is not ideal for long-term production persistence on free hosting plans.

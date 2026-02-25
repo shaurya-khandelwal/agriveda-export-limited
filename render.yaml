@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: agriveda-export-limited
+    runtime: node
+    plan: free
+    region: oregon
+    autoDeploy: true
+    buildCommand: "echo 'No build step required'"
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CONTACT_EMAIL
+        value: sales@agrivedaexports.com
+      - key: WHATSAPP_NUMBER
+        value: "919999999999"
