@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agriveda Export Limited</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="bg-noise"></div>
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <div>
+          <p class="brand-kicker">Global Botanicals</p>
+          <h1>Agriveda Export Limited</h1>
+        </div>
+      </div>
+      <nav class="header-actions">
+        <button id="openAuthBtn" class="btn btn-outline">Login / Register</button>
+        <button id="logoutBtn" class="btn btn-outline hidden">Logout</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">India to Global Markets</p>
+          <h2>Premium Agricultural Exports with Traceable Quality</h2>
+          <p>
+            We supply turmeric, ashvagandha, moringa, and cumin to wholesale buyers,
+            processors, and distributors with dependable quality and transparent sourcing.
+          </p>
+          <div class="hero-cta">
+            <a href="#products" class="btn">Explore Products</a>
+            <a href="#enquiry" class="btn btn-outline">Raise Enquiry</a>
+          </div>
+        </div>
+        <aside class="hero-card" id="accountPanel">
+          <h3>Account Access</h3>
+          <p class="muted">Product details and management are available to registered users.</p>
+          <div id="accountStatus">You are browsing as a guest.</div>
+        </aside>
+      </section>
+
+      <section id="products" class="products-section">
+        <div class="section-head">
+          <p class="eyebrow">Our Portfolio</p>
+          <h3>Export Products</h3>
+        </div>
+        <div id="productGrid" class="product-grid"></div>
+      </section>
+
+      <section id="enquiry" class="enquiry-section">
+        <div class="section-head">
+          <p class="eyebrow">Start Business</p>
+          <h3>Send Product Enquiry</h3>
+        </div>
+        <form id="enquiryForm" class="enquiry-form">
+          <div class="form-row">
+            <input type="text" name="name" placeholder="Your Name" required />
+            <input type="email" name="email" placeholder="Business Email" required />
+          </div>
+          <div class="form-row">
+            <input type="text" name="phone" placeholder="Phone / WhatsApp" />
+            <select name="product" id="enquiryProduct" required>
+              <option value="">Select Product</option>
+            </select>
+          </div>
+          <textarea name="message" placeholder="Your requirement (quantity, destination country, timeline)"></textarea>
+          <button class="btn" type="submit">Submit Enquiry</button>
+          <p class="muted small" id="enquiryStatus"></p>
+        </form>
+      </section>
+
+      <section id="adminSection" class="admin-section hidden">
+        <div class="section-head">
+          <p class="eyebrow">Admin Area</p>
+          <h3>Manage Product Details</h3>
+        </div>
+        <form id="productEditForm" class="enquiry-form">
+          <select id="adminProductSelect" required>
+            <option value="">Select Product to Edit</option>
+          </select>
+          <input id="editName" type="text" placeholder="Product Name" required />
+          <input id="editOrigin" type="text" placeholder="Origin" required />
+          <input id="editGrade" type="text" placeholder="Grade" required />
+          <input id="editMinOrder" type="text" placeholder="Minimum Order" required />
+          <input id="editImage" type="url" placeholder="Image URL" required />
+          <input id="editShortDescription" type="text" placeholder="Short Description" required />
+          <textarea id="editDescription" placeholder="Full Description" required></textarea>
+          <button class="btn" type="submit">Save Product Changes</button>
+          <p class="muted small" id="adminStatus"></p>
+        </form>
+      </section>
+    </main>
+
+    <dialog id="authModal" class="auth-modal">
+      <div class="auth-tabs">
+        <button id="showLogin" class="active">Login</button>
+        <button id="showRegister">Register</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button class="btn" type="submit">Login</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button class="btn" type="submit">Create Account</button>
+      </form>
+
+      <p id="authStatus" class="muted small"></p>
+      <button id="closeAuthBtn" class="btn btn-outline">Close</button>
+    </dialog>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

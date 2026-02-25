@@ -1,0 +1,19 @@
+{
+  "name": "agriveda-export-limited",
+  "version": "1.0.0",
+  "description": "Business-ready agricultural export website for Agriveda Export Limited",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "agriculture",
+    "export",
+    "agriveda",
+    "business-website"
+  ],
+  "author": "Agriveda Export Limited",
+  "license": "ISC",
+  "type": "commonjs"
+}

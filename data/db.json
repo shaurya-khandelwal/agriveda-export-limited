@@ -1,0 +1,71 @@
+{
+  "users": [
+    {
+      "id": "6f05055c-92c4-4133-89af-10310daf331a",
+      "name": "Owner Admin",
+      "email": "admin@agrivedaexports.com",
+      "passwordHash": "7d2bc2226ba41fb0e5626f52fff6b991:0a54bf043be372d8a36ef584ce822016800c2d5cc6e13a2402e3e2c94239d4908bbc2f5d65d0cc01032f2c8fdcfa63f5ae8f6f3efeaccc9298c5bf7fd5c6d0ef",
+      "role": "admin",
+      "createdAt": "2026-02-25T18:29:37.607Z"
+    },
+    {
+      "id": "a82f4b07-1c81-49e9-8dbc-50f37c0ff54a",
+      "name": "Sample Customer",
+      "email": "customer@agrivedaexports.com",
+      "passwordHash": "64724fc727021af5cdb8ee228ae8f3f1:706674595e109a7336048e3c36203b71e07f9a83fa4dd429f3dc52fcabd320bb27936e8fe54f5cc223a2285100c12cce2081efc48da8b726d5f7d41d097e8abb",
+      "role": "customer",
+      "createdAt": "2026-02-25T18:29:37.642Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "3299f45c-fc24-44cd-96ae-b620b7a0b00b",
+      "name": "Turmeric",
+      "slug": "turmeric",
+      "shortDescription": "Premium Indian turmeric with high curcumin content.",
+      "description": "Sourced from trusted farms in India, our export-grade turmeric is sun-dried, cleaned, and sorted for quality consistency. Suitable for food processing, spice blends, and nutraceutical use.",
+      "origin": "Maharashtra, India",
+      "grade": "Export Grade A",
+      "minOrder": "500 kg",
+      "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1200&q=80",
+      "updatedAt": "2026-02-25T18:29:37.642Z"
+    },
+    {
+      "id": "29a179c0-ef68-4e91-b2d5-2caecfea059a",
+      "name": "Ashvagandha",
+      "slug": "ashvagandha",
+      "shortDescription": "High-quality ashwagandha roots for wellness and herbal formulations.",
+      "description": "Our ashwagandha is selected for purity and active compound potential, carefully processed to meet international export expectations for botanical ingredients and herbal products.",
+      "origin": "Madhya Pradesh, India",
+      "grade": "Premium Root Cut",
+      "minOrder": "300 kg",
+      "image": "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?auto=format&fit=crop&w=1200&q=80",
+      "updatedAt": "2026-02-25T18:29:37.642Z"
+    },
+    {
+      "id": "8d3209df-d0a7-4c0a-b305-580084c67e63",
+      "name": "Moringa",
+      "slug": "moringa",
+      "shortDescription": "Nutrient-rich moringa leaves processed for global buyers.",
+      "description": "Agriveda Export Limited supplies clean, food-safe moringa leaves and powders with traceable sourcing. Ideal for health supplements, tea blends, and superfood applications.",
+      "origin": "Tamil Nadu, India",
+      "grade": "Food Grade",
+      "minOrder": "400 kg",
+      "image": "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?auto=format&fit=crop&w=1200&q=80",
+      "updatedAt": "2026-02-25T18:29:37.642Z"
+    },
+    {
+      "id": "327707fd-576d-46df-bc23-a142fb24ea1c",
+      "name": "Cumin",
+      "slug": "cumin",
+      "shortDescription": "Aromatic cumin seeds with robust flavor profile.",
+      "description": "Our cumin seeds are machine-cleaned and quality checked for color, aroma, and moisture level. Packaged for secure international shipping and wholesale distribution.",
+      "origin": "Gujarat, India",
+      "grade": "Sortex Clean",
+      "minOrder": "500 kg",
+      "image": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1200&q=80",
+      "updatedAt": "2026-02-25T18:29:37.642Z"
+    }
+  ],
+  "enquiries": []
+}
