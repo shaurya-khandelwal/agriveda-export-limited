@@ -6,59 +6,112 @@
     <title>Agriveda Export Limited</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Epilogue:wght@500;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="bg-noise"></div>
+    <div class="site-bg"></div>
+
     <header class="site-header">
-      <div class="brand">
-        <span class="brand-dot"></span>
-        <div>
-          <p class="brand-kicker">Global Botanicals</p>
-          <h1>Agriveda Export Limited</h1>
-        </div>
-      </div>
-      <nav class="header-actions">
+      <a class="brand" href="#home">
+        <span class="brand-icon">AE</span>
+        <span class="brand-copy">
+          <strong>Agriveda Export Limited</strong>
+          <small>Grow. Connect. Export.</small>
+        </span>
+      </a>
+
+      <nav class="site-nav">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#products">Products</a>
+        <a href="#enquiry">Enquiry</a>
+      </nav>
+
+      <div class="header-actions">
         <button id="openAuthBtn" class="btn btn-outline">Login / Register</button>
         <button id="logoutBtn" class="btn btn-outline hidden">Logout</button>
-      </nav>
+      </div>
     </header>
 
     <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">India to Global Markets</p>
-          <h2>Premium Agricultural Exports with Traceable Quality</h2>
+      <section id="home" class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">India's Premium Agro Export Partner</p>
+          <h1>Trusted Farm-Origin Ingredients for Global Buyers</h1>
           <p>
-            We supply turmeric, ashvagandha, moringa, and cumin to wholesale buyers,
-            processors, and distributors with dependable quality and transparent sourcing.
+            We export high-quality turmeric, ashvagandha, moringa, and cumin with
+            reliable sourcing, consistent grading, and responsive commercial support.
           </p>
-          <div class="hero-cta">
+          <div class="hero-actions">
             <a href="#products" class="btn">Explore Products</a>
-            <a href="#enquiry" class="btn btn-outline">Raise Enquiry</a>
+            <a href="#enquiry" class="btn btn-ghost">Request Quotation</a>
+          </div>
+          <div class="hero-stats">
+            <article>
+              <h3>4</h3>
+              <p>Core Export Products</p>
+            </article>
+            <article>
+              <h3>2</h3>
+              <p>User Roles Managed</p>
+            </article>
+            <article>
+              <h3>24/7</h3>
+              <p>Enquiry Availability</p>
+            </article>
           </div>
         </div>
-        <aside class="hero-card" id="accountPanel">
-          <h3>Account Access</h3>
-          <p class="muted">Product details and management are available to registered users.</p>
-          <div id="accountStatus">You are browsing as a guest.</div>
+
+        <aside class="hero-panel" id="accountPanel">
+          <h2>Account Access</h2>
+          <p class="muted">Registered users can view full product details. Admin can update product data.</p>
+          <p id="accountStatus" class="status-chip">You are browsing as a guest.</p>
+
+          <div class="trust-list">
+            <span>Traceable Origin</span>
+            <span>Export Grade Sorting</span>
+            <span>Dedicated Support</span>
+          </div>
         </aside>
       </section>
 
-      <section id="products" class="products-section">
+      <section id="about" class="story-grid">
+        <article class="story-card">
+          <p class="eyebrow">Who We Are</p>
+          <h2>Business-first agricultural exports from India</h2>
+          <p>
+            Agriveda Export Limited supplies botanical and spice products to importers,
+            distributors, wellness brands, and food processors. Our workflow combines farm
+            sourcing, quality screening, and practical logistics support.
+          </p>
+        </article>
+        <article class="story-card accent">
+          <p class="eyebrow">How We Work</p>
+          <ul>
+            <li>Product matching based on buyer requirement</li>
+            <li>Quality-aligned grading for consistency</li>
+            <li>Fast enquiry response by email and WhatsApp</li>
+            <li>Long-term supply relationship approach</li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="products" class="content-section products-section">
         <div class="section-head">
           <p class="eyebrow">Our Portfolio</p>
-          <h3>Export Products</h3>
+          <h2>Export Products</h2>
+          <p class="muted">Select any product and send your requirement in seconds.</p>
         </div>
         <div id="productGrid" class="product-grid"></div>
       </section>
 
-      <section id="enquiry" class="enquiry-section">
+      <section id="enquiry" class="content-section enquiry-section">
         <div class="section-head">
           <p class="eyebrow">Start Business</p>
-          <h3>Send Product Enquiry</h3>
+          <h2>Send Product Enquiry</h2>
         </div>
+
         <form id="enquiryForm" class="enquiry-form">
           <div class="form-row">
             <input type="text" name="name" placeholder="Your Name" required />
@@ -70,17 +123,18 @@
               <option value="">Select Product</option>
             </select>
           </div>
-          <textarea name="message" placeholder="Your requirement (quantity, destination country, timeline)"></textarea>
+          <textarea name="message" placeholder="Mention quantity, destination country, and expected timeline"></textarea>
           <button class="btn" type="submit">Submit Enquiry</button>
           <p class="muted small" id="enquiryStatus"></p>
         </form>
       </section>
 
-      <section id="adminSection" class="admin-section hidden">
+      <section id="adminSection" class="content-section admin-section hidden">
         <div class="section-head">
-          <p class="eyebrow">Admin Area</p>
-          <h3>Manage Product Details</h3>
+          <p class="eyebrow">Admin Control</p>
+          <h2>Manage Product Details</h2>
         </div>
+
         <form id="productEditForm" class="enquiry-form">
           <select id="adminProductSelect" required>
             <option value="">Select Product to Edit</option>
@@ -97,6 +151,11 @@
         </form>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Agriveda Export Limited</p>
+      <p>Built for global agricultural trade enquiries.</p>
+    </footer>
 
     <dialog id="authModal" class="auth-modal">
       <div class="auth-tabs">

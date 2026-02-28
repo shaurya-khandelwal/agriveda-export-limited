@@ -2,7 +2,7 @@ const state = {
   token: localStorage.getItem('agriveda_token') || '',
   user: null,
   products: [],
-  config: { contactEmail: 'sales@agrivedaexports.com', whatsappNumber: '919999999999' }
+  config: { contactEmail: 'sales@agrivedaexports.com', whatsappNumber: '918209796106' }
 };
 
 const el = {
@@ -68,7 +68,7 @@ function renderProducts() {
         <h4>${product.name}</h4>
         <p>${product.shortDescription || ''}</p>
         ${detailBlock}
-        <div class="hero-cta">
+        <div class="product-actions">
           <a class="btn" href="${emailLink}">Enquire by Email</a>
           <a class="btn btn-outline" href="${whatsappLink}" target="_blank" rel="noopener">Enquire on WhatsApp</a>
         </div>
@@ -278,6 +278,8 @@ el.productEditForm.addEventListener('submit', async (event) => {
 bindAuthTabs();
 
 (async function init() {
+  const year = document.getElementById('year');
+  if (year) year.textContent = String(new Date().getFullYear());
   await loadPublicConfig();
   await loadCurrentUser();
   await loadProducts();
